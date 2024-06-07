@@ -14,7 +14,7 @@ app.use(express.json());
 const DBURL = process.env.DB_URL;
 // Connection to MongoDB
 mongoose
-  .connect(DBURL, {
+  .connect("mongodb+srv://practice:practice@cluster0.km69i9c.mongodb.net/TODO?retryWrites=true&w=majority&appName=Cluster0", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
