@@ -4,7 +4,11 @@ const cors = require("cors");
 const TodoModel = require("./models/todo"); // Ensure the correct path is used
 const app = express();
 require("dotenv").config();
-app.use(cors());
+app.use(cors({
+  origin: '*', 
+  methods: ['GET', 'POST'],
+  credentials: true 
+}));
 app.use(express.json());
 
 const DBURL = process.env.DB_URL;
