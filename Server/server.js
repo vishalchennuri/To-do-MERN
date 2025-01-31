@@ -4,11 +4,14 @@ const cors = require("cors");
 const TodoModel = require("./models/todo"); // Ensure the correct path is used
 const app = express();
 require("dotenv").config();
-app.use(cors({
-  origin: '*', 
-  methods: ['GET', 'POST'],
-  credentials: true 
-}));
+
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"], // Allow PUT and DELETE
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 const DBURL = process.env.DB_URL;
@@ -41,20 +44,32 @@ app.post("/add", (req, res) => {
     .catch((err) => res.status(500).json({ error: err.message }));
 });
 
-app.delete("/delete/:id", (req, res) => {
-  const { id } = req.params;
-
-  TodoModel.findByIdAndDelete(id)
-    .then(() => res.json({ message: "Todo item deleted successfully" }))
-    .catch((err) => res.status(500).json({ error: err.message }));
-});
-
 app.put("/update/:id", (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
+  console.log(`Updating todo with id: ${id}, new status: ${status}`); // Log the request
 
-  TodoModel.findByIdAndUpdate(id, { status })
-    .then(() => res.json({ message: "Todo item status updated successfully" }))
+  TodoModel.findByIdAndUpdate(id, { status }, { new: true })
+    .then((updatedTodo) => {
+      if (!updatedTodo) {
+        return res.status(404).json({ error: "Todo not found" });
+      }
+      res.json({ message: "Todo item status updated successfully", todo: updatedTodo });
+    })
+    .catch((err) => res.status(500).json({ error: err.message }));
+});
+
+app.delete("/delete/:id", (req, res) => {
+  const { id } = req.params;
+  console.log(`Deleting todo with id: ${id}`); // Log the request
+
+  TodoModel.findByIdAndDelete(id)
+    .then((deletedTodo) => {
+      if (!deletedTodo) {
+        return res.status(404).json({ error: "Todo not found" });
+      }
+      res.json({ message: "Todo item deleted successfully", todo: deletedTodo });
+    })
     .catch((err) => res.status(500).json({ error: err.message }));
 });
 
